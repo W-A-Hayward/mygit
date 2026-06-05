@@ -1,3 +1,4 @@
+
 #include <errno.h>
 #include <openssl/sha.h>
 #include <stdio.h>
@@ -15,7 +16,6 @@
 // write compressed bytes to .git/objects/xx/yyyy...
 // print the 40 hex chars
 
-int create_git_path(const char *full_path);
-int create_git_file(const char *dir_path, const char *file_name,
-                    const char *data, size_t size);
+#define ERROR_CODE -1
+
 int hash_object(int argc, char *argv[]);

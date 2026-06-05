@@ -1,4 +1,4 @@
-#include "mygit.h"
+#include "hash_object.h"
 
 int main(int argc, char *argv[])
 {

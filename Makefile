@@ -1,7 +1,7 @@
 # Variables
 CC = gcc
 CFLAGS = -Wall -Wextra 
-SRC = main.c git_write.c hash_object.c
+SRC = main.c git_write.c hash_object.c write_tree.c
 OBJ = $(SRC:.c=.o)
 EXEC = mygit
 
@@ -16,9 +16,9 @@ $(EXEC): $(OBJ)
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Nettoyage
+# Nettoyage (suppression des objets, de l'exécutable et de .mygit)
 clean:
-	rm -f $(OBJ) $(EXEC)
+	rm -f $(OBJ) $(EXEC) .mygit
 
 .PHONY: all clean
 

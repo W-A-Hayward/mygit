@@ -18,4 +18,4 @@
 
 #define ERROR_CODE -1
 
-int hash_object(int argc, char *argv[]);
+char *hash_object(char *path, char *hash_out);

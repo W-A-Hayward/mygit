@@ -1,24 +1,19 @@
-// hash-object  →  write-tree  →  commit-tree  →  log  →  checkout
-
-#include "git_write.h"
 #include "hash_object.h"
+#include "git_write.h"
 
-int hash_object(int argc, char *argv[])
+char *hash_object(char *path, char *hash_out)
 {
-  if (argc != 2)
-    return ERROR_CODE;
-
   struct stat st;
-  stat(argv[1], &st);
+  stat(path, &st);
   size_t size = st.st_size;
 
   char *buf[size];
 
-  FILE *file = fopen(argv[1], "r");
+  FILE *file = fopen(path, "r");
   if (file == NULL)
   {
     perror("Error opening the file");
-    return ERROR_CODE;
+    exit(EXIT_FAILURE);
   }
   fread(buf, 1, size, file);
   fclose(file);
@@ -70,5 +65,7 @@ int hash_object(int argc, char *argv[])
 
   create_git_file(full_path, file_name, (const char *)hash, 20);
 
-  return 0;
+  hash_out = file_name;
+
+  return hash_out;
 }

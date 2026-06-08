@@ -4,7 +4,11 @@
 
 int main(int argc, char *argv[])
 {
-  write_tree(".");
+  (void)argc;
+  (void)argv;
 
-  return 1;
+  unsigned char hash[20];
+  write_tree("./test", hash);
+
+  return 0;
 }

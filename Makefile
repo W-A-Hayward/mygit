@@ -1,7 +1,7 @@
 # Variables
 CC = gcc
 CFLAGS = -Wall -Wextra 
-SRC = main.c git_write.c hash_object.c write_tree.c
+SRC = main.c git_write.c hash_object.c write_tree.c arena.c
 OBJ = $(SRC:.c=.o)
 EXEC = mygit
 

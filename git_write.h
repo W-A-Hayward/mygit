@@ -1,7 +1,5 @@
-#include <errno.h>
+#include <stddef.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <sys/stat.h>
 #include <zlib.h>
 
@@ -9,4 +7,6 @@
 
 int create_git_path(const char *full_path);
 int create_git_file(const char *dir_path, const char *file_name,
-                    const char *data, size_t size);
+                    const unsigned char *data, size_t size);
+int write_git_object(const unsigned char *content, size_t content_size,
+                     unsigned char hash_out[20]);

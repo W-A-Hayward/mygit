@@ -1,5 +1,10 @@
 #include "git_write.h"
 
+#include <errno.h>
+#include <openssl/sha.h>
+#include <stdlib.h>
+#include <string.h>
+
 int create_git_path(const char *full_path)
 {
   char *sub_path = strdup(full_path);
@@ -39,12 +44,9 @@ int create_git_path(const char *full_path)
 }
 
 int create_git_file(const char *dir_path, const char *file_name,
-                    const char *data, size_t size)
+                    const unsigned char *data, size_t size)
 {
-  // zlib compression
-  uLong source_len = 20;
-
-  uLong dest_len = compressBound(source_len);
+  uLong dest_len = compressBound((uLong)size);
   Bytef *dest = (Bytef *)malloc(dest_len);
   if (dest == NULL)
   {
@@ -52,33 +54,58 @@ int create_git_file(const char *dir_path, const char *file_name,
     return ERROR_CODE;
   }
 
-  int result = compress(dest, &dest_len, (const Bytef *)data, source_len);
-  if (result != Z_OK)
+  if (compress(dest, &dest_len, data, (uLong)size) != Z_OK)
   {
     perror("Failed to compress file");
+    free(dest);
     return ERROR_CODE;
   }
 
   char final_path[512];
-  snprintf(final_path, sizeof(final_path), dir_path, file_name);
-
-  printf("%s", final_path);
+  snprintf(final_path, sizeof(final_path), "%s/%s", dir_path, file_name);
 
   FILE *file = fopen(final_path, "wb");
   if (file == NULL)
   {
     perror("Error while opening file");
-    return -1;
+    free(dest);
+    return ERROR_CODE;
   }
 
-  size_t written = fwrite(data, 1, size, file);
+  size_t written = fwrite(dest, 1, dest_len, file);
   fclose(file);
+  free(dest);
 
-  if (written != size)
+  if (written != dest_len)
   {
     perror("Failed to write all the data into the file");
-    return -1;
+    return ERROR_CODE;
   }
 
   return 0;
+}
+
+int write_git_object(const unsigned char *content, size_t content_size,
+                     unsigned char hash_out[20])
+{
+  SHA1(content, content_size, hash_out);
+
+  char hex_hash[41];
+  for (int i = 0; i < 20; i++)
+    sprintf(&hex_hash[i * 2], "%02x", hash_out[i]);
+
+  char dir_path[256];
+  char file_name[39];
+  memcpy(file_name, hex_hash + 2, 38);
+  file_name[38] = '\0';
+
+  snprintf(dir_path, sizeof(dir_path), ".mygit/objects/%.2s", hex_hash);
+
+  if (mkdir(dir_path, 0755) != 0 && errno != EEXIST)
+  {
+    if (create_git_path(dir_path) != 1)
+      return ERROR_CODE;
+  }
+
+  return create_git_file(dir_path, file_name, content, content_size);
 }

@@ -18,4 +18,6 @@
 
 #define ERROR_CODE -1
 
-char *hash_object(char *path, char *hash_out);
+void hash_object(char *path, unsigned char hash_out[20]);
+void hash_buffer(const unsigned char *buffer, size_t size,
+                 unsigned char hash_out[20]);

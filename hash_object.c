@@ -1,7 +1,29 @@
 #include "hash_object.h"
 #include "git_write.h"
 
-char *hash_object(char *path, char *hash_out)
+void hash_buffer(const unsigned char *buffer, size_t size,
+                 unsigned char hash_out[20])
+{
+  char header[64];
+  int header_len = snprintf(header, sizeof(header), "tree %zu", size);
+  header_len += 1;
+
+  size_t store_size = (size_t)header_len + size;
+  unsigned char *store = (unsigned char *)malloc(store_size);
+  if (store == NULL)
+  {
+    perror("Malloc error");
+    return;
+  }
+
+  memcpy(store, header, (size_t)header_len);
+  memcpy(store + header_len, buffer, size);
+
+  write_git_object(store, store_size, hash_out);
+  free(store);
+}
+
+void hash_object(char *path, unsigned char hash_out[20])
 {
   struct stat st;
   stat(path, &st);
